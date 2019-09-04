@@ -116,3 +116,4 @@ def adventure():
 
 if __name__ == '__main__':
     adventure()
+# finished on day 1 mvp
