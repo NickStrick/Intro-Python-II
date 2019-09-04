@@ -1,4 +1,5 @@
 from room import Room
+from player import Player
 
 # Declare all the rooms
 
@@ -49,3 +50,69 @@ room['treasure'].s_to = room['narrow']
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+
+
+def adventure():
+
+    pName = input("Input your name: ")
+    hero = Player(pName, room['outside'])
+    print(f'welcome {hero.name}')
+
+    # gameStart = True
+
+    # for r in room:
+    #     # print(r)
+    #     if hero.room == r:
+    #         currRoom = room[r]
+    print(f'\nlocation: {hero.room.name} \n   {hero.room.description}\n')
+    print('===========================\n')
+    action = input("Enter a Direction.\nor 'q' to quit: ")
+    print('===========================\n')
+
+    while not action == 'q':
+
+        # for r in room:
+        #     # print(r)
+        #     if hero.room == r:
+        #         currRoom = room[r]
+        def setDirection(direction):
+            if hasattr(hero.room, direction):
+                if direction == 'n_to':
+                    hero.room = hero.room.n_to
+                elif direction == 's_to':
+                    hero.room = hero.room.s_to
+                elif direction == 'e_to':
+                    hero.room = hero.room.e_to
+                elif direction == 'w_to':
+                    hero.room = hero.room.w_to
+            else:
+                print('you cant go that way!')
+
+        direction = ''
+        if action == 'north':
+            direction = 'n_to'
+        elif action == 'south':
+            direction = 's_to'
+        elif action == 'east':
+            direction = 'e_to'
+        elif action == 'west':
+            direction = 'w_to'
+        elif action == 'q':
+            print('you quit!!!')
+            # gameStart == False
+        else:
+            print('Thats not a direction!')
+        setDirection(direction)
+
+        # for r in room:
+        #     if hero.room == r:
+        #         currRoom = room[r]
+
+        print(f'\nlocation: {hero.room.name} \n\n   {hero.room.description}\n')
+        print('===========================\n')
+        action = input("Enter a Direction.\nor 'q' to quit: ")
+        print('===========================\n')
+
+
+if __name__ == '__main__':
+    adventure()
