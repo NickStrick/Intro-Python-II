@@ -1,14 +1,15 @@
 from room import Room
 from player import Player
+from item import Item
 
 # Declare all the rooms
 
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons"),
+                     "North of you, the cave mount beckons", [Item('candle'), Item('rusty nail')]),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east."""),
+passages run north and east.""", [Item('candy')]),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
@@ -70,11 +71,12 @@ def adventure():
     print('===========================\n')
 
     while not action == 'q':
-
+        # print(hero.room.items)
         # for r in room:
         #     # print(r)
         #     if hero.room == r:
         #         currRoom = room[r]
+
         def setDirection(direction):
             if hasattr(hero.room, direction):
                 if direction == 'n_to':
@@ -97,12 +99,49 @@ def adventure():
             direction = 'e_to'
         elif action == 'west':
             direction = 'w_to'
+
+        elif action == 'items':
+            currItems = hero.items
+            print('your items:')
+            for i in currItems:
+                print(f'    {i.name}')
+
+        elif 'get' in action:
+            actArr = action.split(' ', 1)
+            if len(actArr) == 2:
+                roomItems = hero.room.items
+                for i in roomItems:
+                    if i.name == actArr[1]:
+                        print(f'you picked up {i.name}!')
+                        hero.grabItem(i)
+                        hero.room.removeItem(i)
+            else:
+                print('you must type a item to get it!')
+
+        elif 'drop' in action:
+            actArr = action.split(' ', 1)
+            if len(actArr) == 2:
+                currItems = hero.items
+                for i in currItems:
+                    if i.name == actArr[1]:
+                        print(f'you dropped {i.name}!')
+                        hero.dropItem(i)
+                        hero.room.setItem(i)
+
+            else:
+                print('you must type a item to get it!')
+
+        elif action == 'look':
+            roomItems = hero.room.items
+            print('room items:')
+            for i in roomItems:
+                print(f'    {i.name}')
         elif action == 'q':
             print('you quit!!!')
-            # gameStart == False
         else:
-            print('Thats not a direction!')
-        setDirection(direction)
+            print('sorry, i didnt understand that!')
+        if not direction == '':
+            setDirection(direction)
 
         # for r in room:
         #     if hero.room == r:
@@ -110,7 +149,7 @@ def adventure():
 
         print(f'\nlocation: {hero.room.name} \n\n   {hero.room.description}\n')
         print('===========================\n')
-        action = input("Enter a Direction.\nor 'q' to quit: ")
+        action = input("What will you do?.\nor 'q' to quit: ")
         print('===========================\n')
 
 
