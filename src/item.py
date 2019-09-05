@@ -4,6 +4,7 @@ class Item:
     def __init__(self, name, description):
         self.name = name
         self.description = description
+        self.found = False
 
     def onTake(self):
         print(f'you have picked up: {self.name}')
