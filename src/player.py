@@ -9,8 +9,8 @@ class Player:
         self.items = []
 
     def grabItem(self, item):
-        print(self.items)
-        print(item)
+        # print(self.items)
+        # print(item)
         if self.items == []:
             self.items = [item]
         else:
@@ -19,7 +19,6 @@ class Player:
     def dropItem(self, item):
         for i in self.items:
             if item == i:
-                print('removed!')
                 self.items.remove(i)
 
             else:
