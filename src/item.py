@@ -13,3 +13,12 @@ class Item:
 
     def look(self):
         print(f'You looked at the {self.name}:\n    {self.description}')
+
+
+class LightSource(Item):
+    def __init__(self, name, description):
+        super().__init__(name, description)
+        self.is_on = True
+
+    def onDrop(self):
+        print(f'It\'s not wise to drop your source of light!')
