@@ -8,6 +8,7 @@ class Room:
         self.description = description
         self.items = items
         self.is_light = is_light
+        self.found = False
 
     def setItem(self, item):
         if self.items == []:
@@ -19,6 +20,3 @@ class Room:
         for i in self.items:
             if item == i:
                 self.items.remove(i)
-
-            # else:
-            #     print('item isnt in list!!!')
