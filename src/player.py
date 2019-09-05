@@ -9,8 +9,6 @@ class Player:
         self.items = []
 
     def grabItem(self, item):
-        # print(self.items)
-        # print(item)
         if self.items == []:
             self.items = [item]
         else:
