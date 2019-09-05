@@ -1,26 +1,27 @@
 from room import Room
 from player import Player
 from item import Item
+from item import LightSource
 
 # Declare all the rooms
 
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons", [Item('candle', 'hot'), Item('rusty nail', 'gross')]),
+                     "North of you, the cave mount beckons", [Item('candle', 'hot'), Item('rusty nail', 'gross')], True),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east.""", [Item('candy', 'a delicious sugary treat')]),
+passages run north and east.""", [Item('candy', 'a delicious sugary treat'), LightSource('oil lamp', 'its a very old lamp')]),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm."""),
+the distance, but there is no way across the chasm.""", [Item('rock', 'a rock the size of your palm')], True),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air."""),
+to north. The smell of gold permeates the air.""", [Item('rag', 'just a dirty piece of cloth')]),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
 chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south."""),
+earlier adventurers. The only exit is to the south.""", [Item('coins', 'some gold pieces found beside a chest')]),
 }
 
 
@@ -59,44 +60,59 @@ def adventure():
     hero = Player(pName, room['outside'])
     print(f'welcome {hero.name}')
 
-    # gameStart = True
+    def setDirection(direction):
+        if hasattr(hero.room, direction):
+            if direction == 'n_to':
+                hero.room = hero.room.n_to
+            elif direction == 's_to':
+                hero.room = hero.room.s_to
+            elif direction == 'e_to':
+                hero.room = hero.room.e_to
+            elif direction == 'w_to':
+                hero.room = hero.room.w_to
+        else:
+            print('you cant go that way!')
 
-    # for r in room:
-    #     # print(r)
-    #     if hero.room == r:
-    #         currRoom = room[r]
-    print(f'\nlocation: {hero.room.name} \n   {hero.room.description}\n')
+    def hasLight(room, currItems):
+        roomItems = room.items
+        light = False
+        if room.is_light:
+            light = True
+        for i in currItems:
+            if isinstance(i, LightSource):
+                light = True
+        if not light:
+            for i in roomItems:
+                if isinstance(i, LightSource):
+                    light = True
+        return light
+
+    isLit = hasLight(hero.room, hero.items)
+
+    if isLit:
+        print(
+            f'\nlocation: {hero.room.name} \n\n   {hero.room.description}\n')
+    else:
+        print('It\'s pitch black!')
     print('===========================\n')
-    action = input("Enter a Direction.\nor 'q' to quit: ")
+    action = input("What will you do?.\nor 'q' to quit: ")
     print('===========================\n')
 
     while not action == 'q':
-
-        def setDirection(direction):
-            if hasattr(hero.room, direction):
-                if direction == 'n_to':
-                    hero.room = hero.room.n_to
-                elif direction == 's_to':
-                    hero.room = hero.room.s_to
-                elif direction == 'e_to':
-                    hero.room = hero.room.e_to
-                elif direction == 'w_to':
-                    hero.room = hero.room.w_to
-            else:
-                print('you cant go that way!')
 
         direction = ''
         actArr = action.lower().strip().split(' ', 1)
 
         # handles direction commands
-        if action == 'north':
-            direction = 'n_to'
-        elif action == 'south':
-            direction = 's_to'
-        elif action == 'east':
-            direction = 'e_to'
-        elif action == 'west':
-            direction = 'w_to'
+        if actArr[0] == 'go':
+            if actArr[1] == 'north':
+                direction = 'n_to'
+            elif actArr[1] == 'south':
+                direction = 's_to'
+            elif actArr[1] == 'east':
+                direction = 'e_to'
+            elif actArr[1] == 'west':
+                direction = 'w_to'
 
         # handles item viewing commands
         elif action == 'items' or action == 'inventory' or action == 'i':
@@ -104,12 +120,12 @@ def adventure():
             print('your items:')
             for i in currItems:
                 print(f'    {i.name}')
-        elif action == 'look':
+        elif action == 'look' and isLit:
             roomItems = hero.room.items
             print('room items:')
             for i in roomItems:
                 print(f'    {i.name}')
-        elif 'look' in action:
+        elif actArr[0] == 'look' and isLit:
             if len(actArr) == 2:
                 currItems = hero.items
                 roomItems = hero.room.items
@@ -124,19 +140,24 @@ def adventure():
                         if i.name == actArr[1]:
                             i.look()
                             break
+        elif 'look' in action and not isLit:
+            print('You cant do that, its too dark!')
 
         # handles player actions
-        elif 'get' in action or 'take' in action:
-            if len(actArr) == 2:
-                roomItems = hero.room.items
-                for i in roomItems:
-                    if i.name == actArr[1]:
-                        i.onTake()
-                        hero.grabItem(i)
-                        hero.room.removeItem(i)
-                        break
+        elif actArr[0] == 'get' or actArr[0] == 'take' or actArr[0] == 'grab':
+            if not isLit:
+                print('Good luck finding that in the dark!')
             else:
-                print('you must type a item to get it!')
+                if len(actArr) == 2:
+                    roomItems = hero.room.items
+                    for i in roomItems:
+                        if i.name == actArr[1]:
+                            i.onTake()
+                            hero.grabItem(i)
+                            hero.room.removeItem(i)
+                            break
+                else:
+                    print('you must type a item to get it!')
 
         elif 'drop' in action:
             if len(actArr) == 2:
@@ -149,7 +170,7 @@ def adventure():
                         break
 
             else:
-                print('you must type a item to get it!')
+                print('you must type a item to drop it!')
 
         # empy/quit commands
         elif action == 'q':
@@ -159,11 +180,16 @@ def adventure():
         if not direction == '':
             setDirection(direction)
 
-        # for r in room:
-        #     if hero.room == r:
-        #         currRoom = room[r]
+        #
+        # checks if room is lit
 
-        print(f'\nlocation: {hero.room.name} \n\n   {hero.room.description}\n')
+        isLit = hasLight(hero.room, hero.items)
+
+        if isLit:
+            print(
+                f'\nlocation: {hero.room.name} \n\n   {hero.room.description}\n')
+        else:
+            print('It\'s pitch black!')
         print('===========================\n')
         action = input("What will you do?.\nor 'q' to quit: ")
         print('===========================\n')
