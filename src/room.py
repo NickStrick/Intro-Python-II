@@ -3,10 +3,11 @@
 
 
 class Room:
-    def __init__(self, name, description, items=[]):
+    def __init__(self, name, description, items=[], is_light=False):
         self.name = name
         self.description = description
         self.items = items
+        self.is_light = is_light
 
     def setItem(self, item):
         if self.items == []:
@@ -19,5 +20,5 @@ class Room:
             if item == i:
                 self.items.remove(i)
 
-            else:
-                print('item isnt in list!!!')
+            # else:
+            #     print('item isnt in list!!!')

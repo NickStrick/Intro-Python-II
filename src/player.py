@@ -6,6 +6,7 @@ class Player:
     def __init__(self, name, currRoom):
         self.room = currRoom
         self.name = name
+        self.score = 0
         self.items = []
 
     def grabItem(self, item):
