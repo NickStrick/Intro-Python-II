@@ -6,10 +6,10 @@ from item import Item
 
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons", [Item('candle'), Item('rusty nail')]),
+                     "North of you, the cave mount beckons", [Item('candle', 'hot'), Item('rusty nail', 'gross')]),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east.""", [Item('candy')]),
+passages run north and east.""", [Item('candy', 'a delicious sugary treat')]),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
@@ -71,11 +71,6 @@ def adventure():
     print('===========================\n')
 
     while not action == 'q':
-        # print(hero.room.items)
-        # for r in room:
-        #     # print(r)
-        #     if hero.room == r:
-        #         currRoom = room[r]
 
         def setDirection(direction):
             if hasattr(hero.room, direction):
@@ -91,6 +86,9 @@ def adventure():
                 print('you cant go that way!')
 
         direction = ''
+        actArr = action.lower().strip().split(' ', 1)
+
+        # handles direction commands
         if action == 'north':
             direction = 'n_to'
         elif action == 'south':
@@ -100,42 +98,60 @@ def adventure():
         elif action == 'west':
             direction = 'w_to'
 
-        elif action == 'items':
+        # handles item viewing commands
+        elif action == 'items' or action == 'inventory' or action == 'i':
             currItems = hero.items
             print('your items:')
             for i in currItems:
                 print(f'    {i.name}')
-
-        elif 'get' in action:
-            actArr = action.split(' ', 1)
-            if len(actArr) == 2:
-                roomItems = hero.room.items
-                for i in roomItems:
-                    if i.name == actArr[1]:
-                        print(f'you picked up {i.name}!')
-                        hero.grabItem(i)
-                        hero.room.removeItem(i)
-            else:
-                print('you must type a item to get it!')
-
-        elif 'drop' in action:
-            actArr = action.split(' ', 1)
-            if len(actArr) == 2:
-                currItems = hero.items
-                for i in currItems:
-                    if i.name == actArr[1]:
-                        print(f'you dropped {i.name}!')
-                        hero.dropItem(i)
-                        hero.room.setItem(i)
-
-            else:
-                print('you must type a item to get it!')
-
         elif action == 'look':
             roomItems = hero.room.items
             print('room items:')
             for i in roomItems:
                 print(f'    {i.name}')
+        elif 'look' in action:
+            if len(actArr) == 2:
+                currItems = hero.items
+                roomItems = hero.room.items
+                found = False
+                for i in currItems:
+                    if i.name == actArr[1]:
+                        found = True
+                        i.look()
+                        break
+                if not found:
+                    for i in roomItems:
+                        if i.name == actArr[1]:
+                            i.look()
+                            break
+
+        # handles player actions
+        elif 'get' in action or 'take' in action:
+            if len(actArr) == 2:
+                roomItems = hero.room.items
+                for i in roomItems:
+                    if i.name == actArr[1]:
+                        i.onTake()
+                        hero.grabItem(i)
+                        hero.room.removeItem(i)
+                        break
+            else:
+                print('you must type a item to get it!')
+
+        elif 'drop' in action:
+            if len(actArr) == 2:
+                currItems = hero.items
+                for i in currItems:
+                    if i.name == actArr[1]:
+                        i.onDrop()
+                        hero.dropItem(i)
+                        hero.room.setItem(i)
+                        break
+
+            else:
+                print('you must type a item to get it!')
+
+        # empy/quit commands
         elif action == 'q':
             print('you quit!!!')
         else:
