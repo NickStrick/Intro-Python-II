@@ -7,21 +7,44 @@ from item import LightSource
 
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons", [Item('candle', 'hot'), Item('rusty nail', 'gross')], True),
+                     "North of you, the cave mount beckons",
+                     [LightSource('candle', 'dim, but hot'), Item('rusty nail', 'gross')], True),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east.""", [Item('candy', 'a delicious sugary treat'), LightSource('oil lamp', 'its a very old lamp')]),
+passages run north and east.""",
+                     [Item('candy', 'a delicious sugary treat'), LightSource('oil lamp', 'its a very old lamp')]),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm.""", [Item('rock', 'a rock the size of your palm')], True),
+the distance, but there is no way across the chasm.""",
+                     [Item('rock', 'a rock the size of your palm')], True),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air.""", [Item('rag', 'just a dirty piece of cloth')]),
+to north. The smell of gold permeates the air.""",
+                     [Item('rag', 'just a dirty piece of cloth')]),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
 chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south.""", [Item('coins', 'some gold pieces found beside a chest')]),
+earlier adventurers. The only exit is to the south.""",
+                     [Item('coins', 'some gold pieces found beside a chest')]),
+
+    'cavern':   Room("Cavern Floor", """There is a tall cliff above you, 
+you see two very dark hallways going east and west. 
+To your north is a small crawl hole, you hear a noise coming from it, 
+but its too muffled to make out what it is""",
+                     [Item('empty bottle', 'Its an empty glass bottle with a cork holding it shut,  maybe you can put something in it')]),
+
+    'deadend':  Room("Dead End", """Just rocky cave walls in all directions, 
+only way out is the way you came in """,
+                     [Item('pickaxe', 'a used pickaxe, still in good condition')]),
+
+    'furnace':  Room("Smelting Room", """Theres a furnace in the center of the room, 
+its on but has almost no fuel. To the west theres a locked wodden door""",
+                     ),
+    'cave':     Room("Cave passage", """looks like there was a cave collapse, a mound of rocks block your way. 
+there is a broken minecart in the center with coal spilling out""",
+                     [Item('coal', 'some freshly mined coal')])
+
 }
 
 
@@ -32,10 +55,17 @@ room['foyer'].s_to = room['outside']
 room['foyer'].n_to = room['overlook']
 room['foyer'].e_to = room['narrow']
 room['overlook'].s_to = room['foyer']
+room['overlook'].n_to = room['cavern']
 room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
-
+room['cavern'].n_to = room['furnace']
+room['cavern'].e_to = room['deadend']
+room['cavern'].w_to = room['cave']
+room['cavern'].s_to = room['overlook']
+room['deadend'].w_to = room['cavern']
+room['cave'].e_to = room['cavern']
+room['furnace'].s_to = room['cavern']
 #
 # Main
 #
@@ -59,19 +89,6 @@ def adventure():
     pName = input("Input your name: ")
     hero = Player(pName, room['outside'])
     print(f'welcome {hero.name}')
-
-    def setDirection(direction):
-        if hasattr(hero.room, direction):
-            if direction == 'n_to':
-                hero.room = hero.room.n_to
-            elif direction == 's_to':
-                hero.room = hero.room.s_to
-            elif direction == 'e_to':
-                hero.room = hero.room.e_to
-            elif direction == 'w_to':
-                hero.room = hero.room.w_to
-        else:
-            print('you cant go that way!')
 
     def hasLight(room, currItems):
         roomItems = room.items
@@ -113,6 +130,14 @@ def adventure():
                 direction = 'e_to'
             elif actArr[1] == 'west':
                 direction = 'w_to'
+        elif actArr[0] == 'north':
+            direction = 'n_to'
+        elif actArr[0] == 'south':
+            direction = 's_to'
+        elif actArr[0] == 'east':
+            direction = 'e_to'
+        elif actArr[0] == 'west':
+            direction = 'w_to'
 
         # handles item viewing commands
         elif action == 'items' or action == 'inventory' or action == 'i':
@@ -172,13 +197,14 @@ def adventure():
             else:
                 print('you must type a item to drop it!')
 
+        elif actArr[0] == 'score':
+            print(f'Current Score: {hero.score}')
+
         # empy/quit commands
-        elif action == 'q':
-            print('you quit!!!')
         else:
             print('sorry, i didnt understand that!')
         if not direction == '':
-            setDirection(direction)
+            hero.changeRoom(direction)
 
         #
         # checks if room is lit
@@ -193,8 +219,9 @@ def adventure():
         print('===========================\n')
         action = input("What will you do?.\nor 'q' to quit: ")
         print('===========================\n')
+        if action == 'q':
+            print(f'Final Score: {hero.score}\n')
 
 
 if __name__ == '__main__':
     adventure()
-# finished on day 1 mvp
