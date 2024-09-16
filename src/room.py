@@ -3,6 +3,20 @@
 
 
 class Room:
-    def __init__(self, name, description):
+    def __init__(self, name, description, items=[], is_light=False):
         self.name = name
         self.description = description
+        self.items = items
+        self.is_light = is_light
+        self.found = False
+
+    def setItem(self, item):
+        if self.items == []:
+            self.items = [item]
+        else:
+            self.items = [*self.items, item]
+
+    def removeItem(self, item):
+        for i in self.items:
+            if item == i:
+                self.items.remove(i)
